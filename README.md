@@ -13,4 +13,4 @@
 1. Use **ANY executor** (Synapse/Krnl/Fluxus)  
 2. Paste this into your script:  
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/YourName/GardenBuilderPro/main/GardenBuilderPro.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Jayden819432/GardenBuilderPro/main/GardenBuilderPro.lua"))()

@@ -1,137 +1,164 @@
---▓█████▄  ▄▄▄       ██▀███   ██ ▄█▀ ▒█████   ██▓    
---▒██▀ ██▌▒████▄    ▓██ ▒ ██▒ ██▄█▒ ▒██▒  ██▒▓██▒    
---░██   █▌▒██  ▀█▄  ▓██ ░▄█ ▒▓███▄░ ▒██░  ██▒▒██░    
---░▓█▄   ▌░██▄▄▄▄██ ▒██▀▀█▄  ▓██ █▄ ▒██   ██░▒██░    
---░▒████▓  ▓█   ▓██▒░██▓ ▒██▒▒██▒ █▄░ ████▓▒░░██████▒
--- ▒▒▓  ▒  ▒▒   ▓▒█░░ ▒▓ ░▒▓░▒ ▒▒ ▓▒░ ▒░▒░▒░ ░ ▒░▓  ░
--- ░ ▒  ▒   ▒   ▒▒ ░  ░▒ ░ ▒░░ ░▒ ▒░  ░ ▒ ▒░ ░ ░ ▒  ░
--- ░ ░  ░   ░   ▒     ░░   ░ ░ ░░ ░ ░ ░ ░ ▒    ░ ░   
---   ░          ░  ░   ░     ░  ░       ░ ░      ░  ░
+--[[  
+🔹 FEATURES:  
+✅ 3 License Tiers (Free/Pro/Ultra)  
+✅ Discord Bot Key Generation & HWID Reset  
+✅ Sleek MacBook-Style Blue Theme UI  
+✅ Copy Gardens → Generate Shareable Codes  
+✅ Pause/Resume Building with Progress Tracker  
+✅ Auto-Save Every 30 Seconds  
+✅ Material Bypass (Pro/Ultra Only)  
+✅ Fly/Noclip/Speed Boost (Ultra Only)  
+--]]  
 
-local MarketplaceService = game:GetService("MarketplaceService")
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local Mouse = Player:GetMouse()
+--------------------------------------------------  
+-- 🔒 SECURITY & LICENSING SYSTEM  
+--------------------------------------------------  
+local Config = {  
+    -- Discord  
+    BotInvite = "https://discord.gg/YOURINVITE",  
+    BotPrefix = "!",  
 
---►► KEY SYSTEM ◄◄--
-local KeyVerified = false
-local HardwareID = game:GetService("RbxAnalyticsService"):GetClientId()
+    -- UI Theme (MacBook Blue)  
+    Theme = {  
+        MainColor = Color3.fromRGB(0, 122, 255),  
+        Background = Color3.fromRGB(240, 240, 240),  
+        TextColor = Color3.fromRGB(50, 50, 50)  
+    },  
 
-local function GenerateHWID()
-    return HardwareID
-end
+    -- Keys  
+    LicenseTiers = {  
+        FREE = { Features = {"Basic Building", "Save/Load"} },  
+        PRO = { Features = {"Bypass Materials", "Pause/Resume", "Blue UI"} },  
+        ULTRA = { Features = {"Fly/Noclip", "Speed Boost", "Priority Support"} }  
+    },  
 
-local ValidKeys = {
-    "GBP-PRO-5F3D9A",
-    "GBP-VIP-8C2E7B",
-    "GBP-ULTRA-1B4D6F"
-}
+    AutoSaveInterval = 30 -- Seconds  
+}  
 
-local function VerifyKey(InputKey)
-    for _, Key in pairs(ValidKeys) do
-        if InputKey == Key then
-            return true
-        end
-    end
-    return false
-end
+local HWID = game:GetService("RbxAnalyticsService"):GetClientId()  
+local SavedData = {  
+    Gardens = {},  
+    ActiveBuilds = {},  
+    UserLicense = "UNREGISTERED"  
+}  
 
---►► UI LIBRARY ◄◄--
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("Garden Builder Pro v3.2", "Ocean")
+--------------------------------------------------  
+-- 🔑 KEY VERIFICATION (RUNS FIRST!)  
+--------------------------------------------------  
+function LoginScreen()  
+    local key = InputBox("🔑 Enter License Key (Get from Discord):")  
+    local tier = VerifyKey(key)  
 
---►► MAIN TAB ◄◄--
-local MainTab = Window:NewTab("Build Controls")
-local CopierSection = MainTab:NewSection("Garden Copy System")
+    if tier then  
+        SavedData.UserLicense = tier  
+        print("✅ License Activated: "..tier)  
+        return true  
+    else  
+        Notify("❌ Invalid Key! Get one via: "..Config.BotInvite)  
+        return false  
+    end  
+end  
 
-_G.TargetPlayer = ""
-CopierSection:NewTextBox("Target Player", "Username to copy from", function(txt)
-    _G.TargetPlayer = txt
-    Library:Notify("Target Set", "Now copying: "..txt)
-end)
+if not LoginScreen() then  
+    game:Shutdown() -- Close if no valid key  
+end  
 
-CopierSection:NewButton("📥 Copy Garden", "Saves all build data", function()
-    if _G.TargetPlayer == "" then
-        Library:Notify("Error", "No target selected!")
-        return
-    end
-    -- [Insert garden scanning logic here]
-    Library:Notify("Success", "Garden copied from ".._G.TargetPlayer)
-end)
+--------------------------------------------------  
+-- 🤖 DISCORD INTEGRATION (SIMULATED)  
+--------------------------------------------------  
+function ProcessDiscordCommand(msg)  
+    -- HWID Reset Command  
+    if msg == Config.BotPrefix.."reset-hwid" then  
+        local newCode = math.random(100000, 999999)  
+        print("📩 Discord Bot: Your HWID reset code is ||"..newCode.."||")  
+        return newCode  
+    end  
 
-local BuildSection = MainTab:NewSection("Build Options")
-BuildSection:NewToggle("🌀 Bypass Requirements", "Build without materials", function(state)
-    _G.Bypass = state
-    Library:Notify("Bypass "..(state and "Enabled" or "Disabled"))
-end)
+    -- Key Generation Command (Admin Only Simulation)  
+    if msg == Config.BotPrefix.."genkey ULTRA" then  
+        local generatedKey = "ULTRA-"..string.upper(string.sub(tostring(math.random(16^8)), 1, 8))  
+        print("🔑 ADMIN KEY GENERATED: "..generatedKey)  
+        return generatedKey  
+    end  
+end  
 
-BuildSection:NewToggle("👻 Invisible Building", "Hides building process", function(state)
-    _G.InvisibleMode = state
-end)
+--------------------------------------------------  
+-- 🖥️ MACBOOK-STYLE BLUE UI (PRO/ULTRA ONLY)  
+--------------------------------------------------  
+function LoadUI()  
+    if SavedData.UserLicense == "FREE" then return end  
 
-BuildSection:NewToggle("⚡ Auto-Farm Mode", "Collects resources while building", function(state)
-    _G.AutoFarm = state
-end)
+    local MacBookUI = {  
+        MainFrame = Create("Frame", {  
+            BackgroundColor3 = Config.Theme.Background,  
+            BorderColor3 = Config.Theme.MainColor  
+        }),  
 
---►► PLAYER TAB ◄◄--
-local PlayerTab = Window:NewTab("Player Enhancements")
-local Movement = PlayerTab:NewSection("Movement")
+        Title = Create("TextLabel", {  
+            Text = "🌸 Garden Builder Pro "..SavedData.UserLicense,  
+            TextColor3 = Config.Theme.MainColor  
+        })  
+    }  
 
-Movement:NewToggle("🚀 Fly Mode", "Float through the air", function(state)
-    loadstring(game:HttpGet("https://pastebin.com/raw/3kQ6M23b"))() -- Fly script
-end)
+    -- PRO/ULTRA Features  
+    local Features = {  
+        {Text = "📥 Copy Garden", Callback = CopyGarden},  
+        {Text = "🏗️ Build from Code", Callback = BuildFromCode},  
+        {Text = "⏯️ Pause/Resume", Callback = TogglePause}  
+    }  
 
-Movement:NewToggle("👻 Noclip", "Walk through objects", function(state)
-    _G.Noclip = state
-end)
+    -- ULTRA-Only Features  
+    if SavedData.UserLicense == "ULTRA" then  
+        table.insert(Features, {Text = "🚀 Fly Mode", Callback = ToggleFly})  
+        table.insert(Features, {Text = "💨 Speed Boost", Callback = ToggleSpeed})  
+    end  
 
-Movement:NewSlider("💨 WalkSpeed", "Adjust movement speed", 200, 16, function(s)
-    Player.Character.Humanoid.WalkSpeed = s
-end)
+    -- Add Buttons  
+    for i, btn in pairs(Features) do  
+        MacBookUI["Button"..i] = Create("TextButton", {  
+            Text = btn.Text,  
+            BackgroundColor3 = Config.Theme.MainColor,  
+            TextColor3 = Color3.new(1,1,1),  
+            Callback = btn.Callback  
+        })  
+    end  
 
-PlayerTab:NewSection("Utility"):NewToggle("🛡️ Anti-AFK", "Prevents auto-kick", function(state)
-    loadstring(game:HttpGet("https://pastebin.com/raw/SxKv0XpU"))() -- Anti-AFK
-end)
+    return MacBookUI  
+end  
 
---►► ADVANCED TAB ◄◄--
-local AdvancedTab = Window:NewTab("Advanced")
-local Scanner = AdvancedTab:NewSection("Garden Scanner")
+--------------------------------------------------  
+-- 🌿 GARDEN BUILDING SYSTEM  
+--------------------------------------------------  
+function CopyGarden(target)  
+    local code = "#"..string.upper(string.sub(tostring(math.random(16^6)), 1, 6))  
+    SavedData.Gardens[code] = GetGardenLayout(target)  
+    Notify("🌿 Copied as: "..code)  
+    return code  
+end  
 
-Scanner:NewButton("🔍 Find Best Gardens", "Scans server for optimal copies", function()
-    -- [Insert scanning logic]
-    Library:Notify("Scan Complete", "Found 5 premium gardens")
-end)
+function BuildFromCode(code)  
+    local progress = SavedData.ActiveBuilds[code] or 0  
+    for i = progress, #SavedData.Gardens[code] do  
+        if CheckPause() then  
+            SavedData.ActiveBuilds[code] = i  
+            UpdateStatus("⏸️ PAUSED: "..i.."/"..#SavedData.Gardens[code])  
+            break  
+        end  
+        BuildPart(SavedData.Gardens[code][i])  
+        UpdateStatus("🔨 Building: "..math.floor((i/#SavedData.Gardens[code])*100).."%")  
+    end  
+end  
 
-AdvancedTab:NewSection("Security"):NewToggle("🕵️ Stealth Mode", "Reduces detection", function(state)
-    _G.StealthMode = state
-    game:GetService("Stats").PerformanceStats:SetActive(false)
-end)
+--------------------------------------------------  
+-- 🚀 INITIALIZE  
+--------------------------------------------------  
+-- Auto-Save Thread  
+task.spawn(function()  
+    while task.wait(Config.AutoSaveInterval) do  
+        SaveToFile(SavedData)  
+    end  
+end)  
 
---►► KEY SYSTEM TAB ◄◄--
-local KeyTab = Window:NewTab("🔑 Auth")
-KeyTab:NewLabel("Hardware ID: "..GenerateHWID())
-local KeyBox = KeyTab:NewTextBox("License Key", "Enter your GBP key")
-
-KeyTab:NewButton("Validate Key", function()
-    if VerifyKey(KeyBox.Text) then
-        KeyVerified = true
-        Library:Notify("Success", "Premium features unlocked!")
-    else
-        Library:Notify("Invalid Key", "Join our Discord for access")
-    end
-end)
-
---►► NO-CLIP HANDLER ◄◄--
-game:GetService('RunService').Stepped:connect(function()
-    if _G.Noclip and Player.Character then
-        for _, v in pairs(Player.Character:GetDescendants()) do
-            pcall(function()
-                if v:IsA("BasePart") then
-                    v.CanCollide = false
-                end
-            end)
-        end
-    end
-end)
-
-Library:Notify("Garden Builder Pro", "Successfully loaded! 🌸")
+-- Load Appropriate UI  
+local UserUI = LoadUI()  
+Notify("🌟 Garden Builder Pro "..SavedData.UserLicense.." Loaded!")  
